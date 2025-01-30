@@ -1,0 +1,14 @@
+src/main/resources/application.yml
+
+# IDE 관련 파일 무시
+.idea/
+.vscode/
+
+# 빌드 및 로그 파일 무시
+target/
+logs/
+*.log
+
+# 운영체제별 불필요한 파일 무시
+.DS_Store
+Thumbs.db
