@@ -14,7 +14,7 @@ CREATE TABLE products (
     description TEXT,
     imageUrl VARCHAR(255),
     price DECIMAL(10,2) NOT NULL,
-    fake_price DECIMAL(10,2),
+    fake_price INT,
     option INT,
     stock INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

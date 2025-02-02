@@ -16,4 +16,9 @@ public class ProductService {
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
+
+    //각 id에 대한 상품 조회
+    public Product getProductById(Long id) {
+        return productRepository.findById(id).orElseThrow(() -> new RuntimeException("해당 상품을 찾을 수 없습니다 : " + id));
+    }
 }
