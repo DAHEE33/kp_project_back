@@ -12,21 +12,18 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    // 회원 가입
+    // ✅ 회원 가입
     @Transactional
-    public User registerUser(String userName, String email, String password) {
+    public User registerUser(String userName, String email) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
 
-        User user = new User();
-        user.setUsername(userName);
-        user.setEmail(email);
-        user.setPassword(password);
+        User user = new User(userName, email); // ✅ 생성자 사용
         return userRepository.save(user);
     }
 
-    // 회원 조회
+    // ✅ 회원 조회
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));

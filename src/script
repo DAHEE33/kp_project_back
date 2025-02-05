@@ -14,6 +14,8 @@ CREATE TABLE products (
     description TEXT,
     imageUrl VARCHAR(255),
     price DECIMAL(10,2) NOT NULL,
+    fake_price INT,
+    option INT,
     stock INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -55,10 +57,21 @@ CREATE TABLE reviews (
     user_id BIGINT NOT NULL,
     product_id BIGINT NOT NULL,
     rating INT NOT NULL,
+    likes INT,
     comment TEXT,
     created_at TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+
+CREATE TABLE review_likes (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    review_id BIGINT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_review FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE,
+    CONSTRAINT unique_user_review UNIQUE (user_id, review_id) -- ✅ 한 번만 추천 가능하도록 유니크 제약 조건 추가
 );
 
 CREATE TABLE comments (

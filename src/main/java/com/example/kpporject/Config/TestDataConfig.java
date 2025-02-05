@@ -15,7 +15,7 @@ import java.util.List;
 public class TestDataConfig {
 
     @Bean
-    CommandLineRunner initDatabase(UserRepository userRepository) {
+    CommandLineRunner initUserDatabase(UserRepository userRepository) {  // ✅ 이름 변경
         return args -> {
             if (userRepository.findByEmail("test@example.com").isEmpty()) {
                 User user = new User();
@@ -30,18 +30,20 @@ public class TestDataConfig {
         };
     }
 
-
     @Bean
-    CommandLineRunner initDatabase(ProductRepository productRepository) {
+    CommandLineRunner initProductDatabase(ProductRepository productRepository) {  // ✅ 이름 변경
         return args -> {
-            if (productRepository.count() == 0) {
-                productRepository.saveAll(List.of(
-                        new Product(null, "상품 1", 10000, "https://via.placeholder.com/150"),
-                        new Product(null, "상품 2", 20000, "https://via.placeholder.com/150"),
-                        new Product(null, "상품 3", 30000, "https://via.placeholder.com/150"),
-                        new Product(null, "상품 4", 40000, "https://via.placeholder.com/150")
-                ));
-            }
+            System.out.println("🚀 기존 상품 데이터를 삭제합니다.");
+            productRepository.deleteAll();  // ✅ 기존 데이터 삭제
+
+            System.out.println("🚀 새로운 상품 데이터를 추가합니다.");
+            productRepository.saveAll(List.of(
+                    new Product("TEST 상품 1", "상품 1입니다", 10000, "https://via.placeholder.com/150", 10),
+                    new Product("TEST 상품 2", "상품 2입니다", 20000, "https://via.placeholder.com/150", 20),
+                    new Product("TEST 상품 3", "상품 3입니다", 30000, "https://via.placeholder.com/150", 10),
+                    new Product("TEST 상품 4", "상품 4입니다", 40000, "https://via.placeholder.com/150", 30)
+            ));
         };
     }
 }
+
