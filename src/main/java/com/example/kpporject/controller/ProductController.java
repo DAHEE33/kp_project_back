@@ -9,10 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -54,9 +51,16 @@ public class ProductController {
 //        return ResponseEntity.ok(reviewService.getReviewsByProductId(id, pageable));
 //    }
 
+    // ✅ 리뷰 조회 (정렬 기능 포함)
     @GetMapping("/{id}/reviews")
-    public ResponseEntity<Page<Review>> getReviewsByProductId(@PathVariable Long id, Pageable pageable) {
-        return ResponseEntity.ok(reviewService.getReviewsByProductId(id, pageable));
+    public ResponseEntity<Page<Review>> getReviewsByProductId(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "latest") String sort
+    ) {
+        return ResponseEntity.ok(reviewService.getReviewsByProductId(id, page, size, sort));
     }
+
 
 }

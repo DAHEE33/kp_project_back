@@ -28,6 +28,8 @@ public class Review {
 
     private int rating;          // ⭐ 별점
     private String comment;      // 📝 리뷰 내용
+    @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
+    private int likes = 0;       // 👍 추천 수 (기본값 0)
 
     @Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
@@ -39,6 +41,11 @@ public class Review {
         this.rating = rating;
         this.comment = comment;
         this.createdAt = LocalDateTime.now();
+    }
+
+    // ✅ 추천 수 증가 메서드
+    public void addLike() {
+        this.likes++;
     }
 
 
