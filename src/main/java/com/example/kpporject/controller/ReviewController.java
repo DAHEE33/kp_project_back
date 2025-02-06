@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/reviews")
+@RequestMapping("/pass/reviews") // pass : 개발용 security filter 통과 uri
 public class ReviewController {
 
     @Autowired
