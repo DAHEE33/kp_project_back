@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/pass/reviews") // pass : 개발용 security filter 통과 uri
@@ -30,8 +31,9 @@ public class ReviewController {
 
     // ✅ 추천 기능 (유저 ID 추가)
     @PostMapping("/{reviewId}/like")
-    public ResponseEntity<?> likeReview(@PathVariable Long reviewId, @RequestParam Long userId) {
+    public ResponseEntity<?> likeReview(@PathVariable Long reviewId, @RequestBody Map<String, Long> payload) {
         try {
+            Long userId = payload.get("userId"); // JSON Body에서 userId 가져오기
             reviewService.likeReview(reviewId, userId);
             return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
