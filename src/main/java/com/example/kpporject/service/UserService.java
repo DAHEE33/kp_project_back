@@ -6,11 +6,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
     private final UserRepository userRepository;
+
+
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+    public User saveUser(User user) {
+        return userRepository.save(user);
+    }
+    public void deleteUser(User user) {userRepository.delete(user);}
 
     // ✅ 회원 가입
     @Transactional

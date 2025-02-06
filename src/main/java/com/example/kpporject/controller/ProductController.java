@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/pass/products") // pass : 개발용 security filter 통과 uri
 @RequiredArgsConstructor
 public class ProductController {
 

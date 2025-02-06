@@ -4,8 +4,10 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255),
     oauth_provider VARCHAR(255),
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    oauth_id VARCHAR(255),
+    phone_number VARCHAR(255)
 );
 
 CREATE TABLE products (
