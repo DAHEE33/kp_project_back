@@ -1,8 +1,10 @@
 package com.example.kpporject.service;
 
+import com.example.kpporject.entity.Product;
 import com.example.kpporject.entity.Review;
 import com.example.kpporject.entity.ReviewLike;
 import com.example.kpporject.entity.User;
+import com.example.kpporject.repository.ProductRepository;
 import com.example.kpporject.repository.ReviewLikeRepository;
 import com.example.kpporject.repository.ReviewRepository;
 import com.example.kpporject.repository.UserRepository;
@@ -12,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,6 +29,9 @@ public class ReviewService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
 
     // ✅ 리뷰 목록 조회 (복합 정렬 로직 추가)
@@ -91,9 +97,29 @@ public class ReviewService {
         return reviewRepository.findByUserId(userId);
     }
 
-    // ✅ 리뷰 작성 여부 확ㅇ
+    // ✅ 리뷰 작성 여부 확인
     public boolean hasUserPurchasedProduct(Long userId, Long productId) {
         return reviewRepository.existsByUserIdAndProductId(userId, productId);
+    }
+
+    // ✅ 리뷰 등록
+    @Transactional
+    public Review addReview(Long userId, Long productId, int rating, String comment) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+
+        Review review = new Review(user, product, rating, comment);
+        return reviewRepository.save(review);
+    }
+
+    // ✅ 리뷰를 한 번도 작성하지 않은 경우 true 반환 (작성 가능), 이미 작성한 경우 false 반환
+    public boolean canUserWriteReview(Long userId, Long productId) {
+        //해당 userId와 productId가 존재하지 않는다면 false -> return ture
+        boolean hasReview = reviewRepository.existsByUserIdAndProductId(userId, productId);
+        return !hasReview;
+
     }
 
 
