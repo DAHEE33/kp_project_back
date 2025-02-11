@@ -1,5 +1,8 @@
 package com.example.kpporject.service;
 
+import com.example.kpporject.auth.userInfo.GoogleUserInfo;
+import com.example.kpporject.auth.userInfo.KakaoUserInfo;
+import com.example.kpporject.auth.userInfo.OAuth2UserInfo;
 import com.example.kpporject.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,12 +13,13 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+public class CustomOAuth2UserService extends DefaultOAuth2UserService { // Oauth2 로그인 시 루트
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CustomOAuth2UserService.class);
     private final UserService userService;
@@ -32,20 +36,22 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         log.info("OAuth Provider: {}", registrationId);
 
+        OAuth2UserInfo oAuth2UserInfo = null;
+
         // OAuth2User에서 사용자 속성 추출
         String email ;
         String sub ;
         String name ;
         if (registrationId.equals("google")) {
-            email = oAuth2User.getAttribute("email");
-            sub = oAuth2User.getAttribute("sub");
-            name = oAuth2User.getAttribute("name"); // 필요 시 사용자 이름 추출
+            oAuth2UserInfo = new GoogleUserInfo(oAuth2User.getAttributes());
         }
         else { //kko
-            email = oAuth2User.getAttribute("email");
-            sub = oAuth2User.getAttribute("sub");
-            name = oAuth2User.getAttribute("name"); // 필요 시 사용자 이름 추출
+            oAuth2UserInfo = new KakaoUserInfo(oAuth2User.getAttributes());
         }
+        email = oAuth2UserInfo.getEmail();
+        sub = oAuth2UserInfo.getProviderId();
+        name = oAuth2UserInfo.getName();
+
         Optional<User> optionalUser = userService.getUserByEmail(email);
 
         if (optionalUser.isEmpty()) {

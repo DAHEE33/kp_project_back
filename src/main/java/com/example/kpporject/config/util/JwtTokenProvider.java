@@ -1,4 +1,7 @@
 package com.example.kpporject.config.util;
+import com.example.kpporject.auth.userInfo.GoogleUserInfo;
+import com.example.kpporject.auth.userInfo.KakaoUserInfo;
+import com.example.kpporject.auth.userInfo.OAuth2UserInfo;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.Authentication;
@@ -22,7 +25,7 @@ public class JwtTokenProvider {
      * Authentication 객체를 기반으로 JWT 토큰을 생성합니다.
      * OAuth2 인증과 일반 인증 모두를 처리할 수 있도록 분기 처리합니다.
      */
-    public String generateToken(Authentication authentication) {
+    public String generateToken(Authentication authentication,String registrationId) {
         String username;
         Object principal = authentication.getPrincipal();
 
@@ -32,12 +35,15 @@ public class JwtTokenProvider {
         }
         // OAuth2 로그인 시 DefaultOAuth2User 인스턴스인 경우
         else if (principal instanceof DefaultOAuth2User oauthUser) {
+            OAuth2UserInfo oAuth2UserInfo = null;
             // 구글의 경우 "email"이나 "sub" 등의 속성을 사용할 수 있습니다.
-            // 아래는 "email" 속성이 있다면 이를, 없으면 "sub"를 사용합니다.
-            username = oauthUser.getAttribute("email");
-            if (username == null) {
-                username = oauthUser.getAttribute("sub");
+            if ("google".equals(registrationId)) {
+                oAuth2UserInfo = new GoogleUserInfo(oauthUser.getAttributes());
+            } else { // kko
+                oAuth2UserInfo = new KakaoUserInfo(oauthUser.getAttributes());
             }
+            username = oAuth2UserInfo.getEmail();
+            System.out.println("JwtTokenProviderusername = " + username);
         }
         else {
             throw new IllegalArgumentException("Unknown principal type: " + principal.getClass());

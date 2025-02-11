@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +25,14 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
 
-        String token = tokenProvider.generateToken(authentication);
+        // OAuth2 인증 정보를 얻기 위해 OAuth2AuthenticationToken으로 캐스팅
+        String registrationId = null;
+        if (authentication instanceof OAuth2AuthenticationToken oauth2Token) {
+            // OAuth2 인증에서 공급자 등록 ID를 확인
+            registrationId = oauth2Token.getAuthorizedClientRegistrationId();
+            log.info("registrationId : {}", registrationId);
+        }
+        String token = tokenProvider.generateToken(authentication,registrationId);
 
         // JWT를 담은 쿠키 생성
         Cookie jwtCookie = new Cookie("loginJwtToken", token);
