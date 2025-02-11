@@ -4,10 +4,7 @@ import com.example.kpporject.entity.Product;
 import com.example.kpporject.entity.Review;
 import com.example.kpporject.entity.ReviewLike;
 import com.example.kpporject.entity.User;
-import com.example.kpporject.repository.ProductRepository;
-import com.example.kpporject.repository.ReviewLikeRepository;
-import com.example.kpporject.repository.ReviewRepository;
-import com.example.kpporject.repository.UserRepository;
+import com.example.kpporject.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,6 +33,8 @@ public class ReviewService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private OrderRepository orderRepository;
 
     // ✅ 리뷰 목록 조회 (복합 정렬 로직 추가)
     public Page<Review> getReviewsByProductId(Long productId, int page, int size, String sortOption) {
@@ -72,7 +71,6 @@ public class ReviewService {
     }
 
     // ✅ 리뷰 추천 (중복 방지 로직 추가)
-    // ✅ 리뷰 추천 (중복 방지 로직 추가)
     public ResponseEntity<?> likeReview(Long reviewId, Long userId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "리뷰를 찾을 수 없습니다."));
@@ -104,14 +102,39 @@ public class ReviewService {
         return reviewRepository.findByUserId(userId);
     }
 
-    // ✅ 리뷰 작성 여부 확인
+
+     // ✅ 특정 사용자가 특정 상품을 구매했는지 확인
     public boolean hasUserPurchasedProduct(Long userId, Long productId) {
-        return reviewRepository.existsByUserIdAndProductId(userId, productId);
+        return orderRepository.existsByUserIdAndProductId(userId, productId);
     }
 
+    // ✅ 리뷰 작성 가능 여부 확인 (구매 여부 + 리뷰 작성 여부 체크)
+    public boolean canUserWriteReview(Long userId, Long productId) {
+    // 구매 여부 확인
+    boolean hasPurchased = hasUserPurchasedProduct(userId, productId);
+    System.out.println("✅ hasPurchased: " + hasPurchased);
+
+    if (!hasPurchased) {
+        return false;
+    }
+
+    // 기존 리뷰 작성 여부 확인
+    boolean hasReview = reviewRepository.existsByUserIdAndProductId(userId, productId);
+    System.out.println("✅ hasReview: " + hasReview);
+
+    return !hasReview;
+}
+
+
     // ✅ 리뷰 등록
-    @Transactional
+      @Transactional
     public Review addReview(Long userId, Long productId, int rating, String comment) {
+        // 1️⃣ 구매 여부 확인
+        if (!hasUserPurchasedProduct(userId, productId)) {
+            throw new RuntimeException("구매한 사용자만 리뷰를 작성할 수 있습니다.");
+        }
+
+        // 2️⃣ 리뷰 추가 로직
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         Product product = productRepository.findById(productId)
@@ -121,13 +144,6 @@ public class ReviewService {
         return reviewRepository.save(review);
     }
 
-    // ✅ 리뷰를 한 번도 작성하지 않은 경우 true 반환 (작성 가능), 이미 작성한 경우 false 반환
-    public boolean canUserWriteReview(Long userId, Long productId) {
-        //해당 userId와 productId가 존재하지 않는다면 false -> return ture
-        boolean hasReview = reviewRepository.existsByUserIdAndProductId(userId, productId);
-        return !hasReview;
-
-    }
 
 
 }

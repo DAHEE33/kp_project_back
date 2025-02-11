@@ -38,12 +38,12 @@ public class ReviewController {
             @CookieValue(value = "loginJwtToken", required = false) String token,
             @PathVariable Long productId) {
 
-        // 토큰 검증
+        // 1️⃣ 토큰 검증
         if (token == null || !jwtTokenProvider.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
         }
 
-        // JWT에서 userId 추출
+        // 2️⃣ JWT에서 userId 추출
         String email = jwtTokenProvider.getUsernameFromJWT(token);
         Optional<User> optionalUser = userService.getUserByEmail(email);
         if (optionalUser.isEmpty()) {
@@ -51,7 +51,10 @@ public class ReviewController {
         }
 
         Long userId = optionalUser.get().getId();
+
+        // 3️⃣ 구매 여부 + 리뷰 작성 여부 체크
         boolean canWriteReview = reviewService.canUserWriteReview(userId, productId);
+
         return ResponseEntity.ok(canWriteReview);
     }
 
@@ -125,7 +128,7 @@ public class ReviewController {
 //        }
 //    }
 
-    @PostMapping("/add")
+     @PostMapping("/add")
     public ResponseEntity<?> addReview(
             @CookieValue(value = "loginJwtToken", required = false) String token,
             @RequestBody Map<String, Object> payload) {
@@ -148,7 +151,7 @@ public class ReviewController {
         int rating = (int) payload.get("rating");
         String comment = payload.get("comment").toString();
 
-        // 3️⃣ **구매한 사용자만 리뷰 작성 가능하도록 검증**
+        // 3️⃣ 구매 여부 확인
         if (!reviewService.hasUserPurchasedProduct(userId, productId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("구매한 회원만 리뷰 작성이 가능합니다.");
         }
