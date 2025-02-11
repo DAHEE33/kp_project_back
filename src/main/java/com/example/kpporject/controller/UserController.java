@@ -29,7 +29,7 @@ public class UserController {
      */
     @GetMapping("/info")
     public ResponseEntity<?> getCurrentUser(@CookieValue(value = "loginJwtToken", required = false) String token) {
-
+        System.out.println("token = " + token);
         Map<String, Object> responseMap = new HashMap<>();
         // 토큰이 없거나 유효하지 않은 경우 401 반환
         if (token == null || !jwtTokenProvider.validateToken(token)) {
