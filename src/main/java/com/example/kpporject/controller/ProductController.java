@@ -21,11 +21,7 @@ public class ProductController {
     private final ProductService productService;
     private final ReviewService reviewService;
 
-    // ✅ 전체 상품 목록 조회
-//    @GetMapping
-//    public ResponseEntity<List<Product>> getAllProducts() {
-//        return ResponseEntity.ok(productService.getAllProducts());
-//    }
+    // ✅ 전체 상품 목록 조회 -- 모든 회원
     @GetMapping
     public ResponseEntity<List<ProductDTO>> getAllProducts() {
         List<ProductDTO> products = productService.getAllProducts().stream()
@@ -34,24 +30,14 @@ public class ProductController {
         return ResponseEntity.ok(products);
     }
 
-    // ✅ 특정 상품 상세 정보 조회
-//    @GetMapping("/{id}")
-//    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
-//        return ResponseEntity.ok(productService.getProductById(id));
-//    }
+    // ✅ 특정 상품 상세 정보 조회 -- 모든 회원
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         Product product = productService.getProductById(id);
         return ResponseEntity.ok(new ProductDTO(product));
     }
 
-    // ✅ 특정 상품의 리뷰 목록 조회
-//    @GetMapping("/{id}/reviews")
-//    public ResponseEntity<List<Review>> getReviewsByProductId(@PathVariable Long id, Pageable pageable) {
-//        return ResponseEntity.ok(reviewService.getReviewsByProductId(id, pageable));
-//    }
-
-    // ✅ 리뷰 조회 (정렬 기능 포함)
+    // ✅ 리뷰 조회 (정렬 기능 포함) -- 모든 회원
     @GetMapping("/{id}/reviews")
     public ResponseEntity<Page<Review>> getReviewsByProductId(
             @PathVariable Long id,

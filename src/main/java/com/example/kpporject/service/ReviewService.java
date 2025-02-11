@@ -13,8 +13,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -69,16 +72,17 @@ public class ReviewService {
     }
 
     // ✅ 리뷰 추천 (중복 방지 로직 추가)
-    public void likeReview(Long reviewId, Long userId) {
+    // ✅ 리뷰 추천 (중복 방지 로직 추가)
+    public ResponseEntity<?> likeReview(Long reviewId, Long userId) {
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new RuntimeException("리뷰를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "리뷰를 찾을 수 없습니다."));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
-        // ✅ 중복 추천 방지
+        // ✅ 중복 추천 방지 (에러 대신 200 응답과 메시지만 반환)
         if (reviewLikeRepository.existsByUserIdAndReviewId(userId, reviewId)) {
-            throw new RuntimeException("이미 추천한 리뷰입니다.");
+            return ResponseEntity.ok("이미 추천한 리뷰입니다."); // 🔹 HTTP 200 응답으로 변경
         }
 
         // 추천 처리
@@ -90,7 +94,10 @@ public class ReviewService {
         like.setUser(user);
         like.setReview(review);
         reviewLikeRepository.save(like);
+
+        return ResponseEntity.ok("추천이 완료되었습니다."); // 🔹 정상 응답
     }
+
 
     // ✅ 사용자 ID로 리뷰 조회
     public List<Review> getReviewsByUserId(Long userId) {
