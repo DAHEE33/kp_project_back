@@ -15,9 +15,10 @@ import java.util.Set;
 public interface CartRepository extends JpaRepository<Cart, Long> {
     List<Cart> findByUserId(Long userId);
 
-    Cart findByUserIdAndProductId(Long userId, Long productId);
+    // 특정 userId가 선택한 cartId 목록만 가져오기
+    List<Cart> findByIdInAndUserId(List<Long> cartIds, Long userId);
 
-    void deleteByUserIdAndProductId(Long userId, Long productId);
+    Cart findByUserIdAndProductId(Long userId, Long productId);
 
     @Query("SELECT c FROM Cart c JOIN FETCH c.product WHERE c.user.id = :userId")
     List<Cart> findByUserIdWithProduct(@Param("userId") Long userId);

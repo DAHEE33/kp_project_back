@@ -22,29 +22,45 @@ CREATE TABLE products (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE orders (
-    id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(id),
-    total_price DECIMAL(10,2) NOT NULL,
-    status VARCHAR(50) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE order_items (
-    id SERIAL PRIMARY KEY,
-    order_id INT REFERENCES orders(id),
-    product_id INT REFERENCES products(id),
-    quantity INT NOT NULL,
-    price DECIMAL(10,2) NOT NULL
-);
-
+-- 🛍️ 장바구니 테이블
 CREATE TABLE cart (
     id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(id),
-    product_id INT REFERENCES products(id),
-    quantity INT NOT NULL
+    user_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
 );
 
+-- 🛒 주문 테이블
+CREATE TABLE orders (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    total_price DOUBLE PRECISION NOT NULL,
+    discount_amount DOUBLE PRECISION NOT NULL DEFAULT 0,
+    payment_method VARCHAR(255) NOT NULL DEFAULT '무통장입금',
+    order_status VARCHAR(50) NOT NULL DEFAULT '결제 대기',
+    recipient_name VARCHAR(255) NOT NULL,
+    recipient_phone VARCHAR(20) NOT NULL,
+    recipient_email VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+-- 📦 주문 상세 (OrderItem) 테이블
+CREATE TABLE order_items (
+    id SERIAL PRIMARY KEY,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL,
+    price DOUBLE PRECISION NOT NULL,
+    total_price DOUBLE PRECISION NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
+);
 CREATE TABLE reviews (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(id),

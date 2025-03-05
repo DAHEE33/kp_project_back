@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
@@ -14,5 +16,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "JOIN o.orderItems oi " +
             "WHERE o.user.id = :userId AND oi.product.id = :productId")
     boolean existsByUserIdAndProductId(@Param("userId") Long userId, @Param("productId") Long productId);
+
+
+    List<Order> findByUserId(Long userId);
+
 
 }
