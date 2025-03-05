@@ -6,9 +6,13 @@ import com.example.kpporject.entity.Product;
 import com.example.kpporject.entity.User;
 import com.example.kpporject.repository.CartRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -62,15 +66,6 @@ public class CartService {
         }
     }
 
-    // ✅ 장바구니에서 삭제 (수정된 부분)
-    @Transactional
-    public void removeFromCart(Long userId, Long productId) {
-        Cart cart = cartRepository.findByUserIdAndProductId(userId, productId);
-        if (cart == null) {
-            throw new RuntimeException("장바구니에 해당 상품이 없습니다.");
-        }
-        cartRepository.delete(cart);
-    }
 
     // ✅ 장바구니 수량 업데이트 (수정된 부분)
     @Transactional
@@ -82,4 +77,22 @@ public class CartService {
         cart.setQuantity(quantity);
         cartRepository.save(cart);
     }
+
+
+    // ✅ 개별 상품 삭제
+    @Transactional
+    public void removeFromCart(Long userId, Long productId) {
+        Cart cart = cartRepository.findByUserIdAndProductId(userId, productId);
+        if (cart == null) {
+            throw new RuntimeException("장바구니에 해당 상품이 없습니다.");
+        }
+        cartRepository.delete(cart);
+    }
+
+    // ✅ 선택한 상품들 삭제
+    @Transactional
+    public void removeCartItems(List<Long> cartIds) {
+        cartRepository.deleteByIdIn(cartIds);
+    }
+
 }

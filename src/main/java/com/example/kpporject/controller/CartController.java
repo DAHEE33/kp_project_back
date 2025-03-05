@@ -13,9 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -73,11 +71,9 @@ public class CartController {
         }
     }
 
-    /**
-     * ✅ 장바구니에서 상품 삭제 API
-     */
+    // ✅ 개별 상품 삭제 API
     @DeleteMapping("/remove/{productId}")
-    public ResponseEntity<String> removeFromCart(
+    public ResponseEntity<String> removeItem(
             @CookieValue(value = "loginJwtToken", required = false) String token,
             @PathVariable Long productId) {
         try {
@@ -85,9 +81,34 @@ public class CartController {
             cartService.removeFromCart(user.getId(), productId);
             return ResponseEntity.ok("상품이 장바구니에서 삭제되었습니다.");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("장바구니 삭제 실패: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("삭제 실패: " + e.getMessage());
         }
     }
+
+    @DeleteMapping("/remove-selected")
+    public ResponseEntity<String> removeSelectedItems(
+            @CookieValue(value = "loginJwtToken", required = false) String token,
+            @RequestBody Map<String, List<Long>> requestData) { // ✅ JSON 객체로 받기
+        try {
+            User user = validateAndGetUser(token);
+
+            // ✅ JSON 데이터에서 cartIds 추출
+            List<Long> cartIds = requestData.get("cartIds");
+            System.out.println("📌 요청된 삭제 장바구니 ID 리스트: " + cartIds);
+            System.out.println("📌 요청한 사용자 ID: " + user.getId());
+
+            if (cartIds == null || cartIds.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("삭제할 상품이 없습니다.");
+            }
+
+            cartService.removeCartItems(cartIds); // ✅ cartId로 삭제
+            return ResponseEntity.ok("선택한 상품이 장바구니에서 삭제되었습니다.");
+        } catch (RuntimeException e) {
+            System.err.println("❌ 장바구니 삭제 오류: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("선택한 상품 삭제 실패: " + e.getMessage());
+        }
+    }
+
 
     /**
      * ✅ 장바구니 수량 변경 API
